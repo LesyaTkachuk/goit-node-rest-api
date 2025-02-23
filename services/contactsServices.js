@@ -1,58 +1,28 @@
-import fs from "fs/promises";
-import path from "path";
-import { nanoid } from "nanoid";
+import Contact from "../models/Contact.js";
 
-const contactsPath = path.join(process.cwd(), "db", "contacts.json");
+export const listContacts = () => Contact.findAll();
 
-export async function listContacts() {
-  const data = await fs.readFile(contactsPath, "utf-8");
-  return JSON.parse(data);
-}
+export const getContactById = (contactId) => Contact.findByPk(contactId);
 
-export async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const contact = contacts.find((contact) => contact.id === contactId);
-  return contact || null;
-}
+export const removeContact = (contactId) =>
+  Contact.destroy({ where: { id: contactId } });
 
-export async function removeContact(contactId) {
+export const addContact = (data) => Contact.create(data);
+
+export const updateContact = async (contactId, data) => {
   const contact = await getContactById(contactId);
   if (!contact) {
     return null;
   }
+  return contact.update(data, {
+    returning: true,
+  });
+};
 
-  const contacts = await listContacts();
-  const filteredContacts = contacts.filter(
-    (contact) => contact.id !== contactId
-  );
-  await fs.writeFile(contactsPath, JSON.stringify(filteredContacts));
-  return contact;
-}
-
-export async function addContact(data) {
-  const id = nanoid();
-  const newContact = {
-    id,
-    ...data,
-  };
-
-  const contacts = await listContacts();
-  contacts.push(newContact);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts));
-  return getContactById(id);
-}
-
-export async function updateContact(contactId, data) {
+export const updateContactStatus = async (contactId, isFavorite) => {
   const contact = await getContactById(contactId);
   if (!contact) {
     return null;
   }
-
-  const contacts = await listContacts();
-  const updatedContacts = contacts.map((contact) =>
-    contact.id === contactId ? { ...contact, ...data } : contact
-  );
-
-  await fs.writeFile(contactsPath, JSON.stringify(updatedContacts));
-  return getContactById(contactId);
-}
+  return contact.update({ favorite: isFavorite }, { returning: true });
+};
