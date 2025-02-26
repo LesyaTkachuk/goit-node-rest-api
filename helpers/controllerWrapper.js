@@ -3,6 +3,9 @@ const controllerWrapper = (controller) => {
     try {
       await controller(req, res, next);
     } catch (error) {
+      if (error instanceof ValidationError) {
+        error.status = 400;
+      }
       next(error);
     }
   };
