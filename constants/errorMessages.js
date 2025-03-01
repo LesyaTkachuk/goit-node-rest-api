@@ -1,5 +1,6 @@
 export const MISSING_AUTHORIZATION_HEADER = "Missing Authorization header";
 export const MISSING_BEARER = "Missing Bearer";
+export const USER_NOT_AUTHORIZED = "User not authorized";
 export const USER_NOT_FOUND = "User not found";
 export const USER_ALREADY_EXISTS = "User already exists";
 export const INVALID_CREDENTIALS = "Email or password is wrong";
