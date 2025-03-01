@@ -1,6 +1,23 @@
 import Contact from "../db/models/Contact.js";
+import { DEFAULT_PAGE, DEFAULT_LIMIT } from "../constants/contacts.js";
 
-export const listContacts = (query) => Contact.findAll({ where: query });
+export const listContacts = async (query) => {
+  const {
+    page: queryPage = DEFAULT_PAGE,
+    limit: queryLimit = DEFAULT_LIMIT,
+    ...restQuery
+  } = query;
+
+  // check for numeric values
+  const page = Math.max(Number(queryPage), 1);
+  const limit = Math.max(Number(queryLimit), 1);
+
+  return await Contact.findAll({
+    where: restQuery,
+    limit,
+    offset: (page - 1) * limit,
+  });
+};
 
 export const getContactById = (contactId) => Contact.findByPk(contactId);
 

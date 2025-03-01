@@ -2,13 +2,15 @@ import bcrypt from "bcrypt";
 import User from "../db/models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import { createToken } from "../helpers/jwt.js";
+import { INVALID_CREDENTIALS } from "../constants/errorMessages.js";
+import { getUserExistMessage ,USER_NOT_FOUND} from "../constants/errorMessages.js";
 
 export const findUser = async (query) => await User.findOne({ where: query });
 
-const updateUser = async (query, data) => {
+export const updateUser = async (query, data) => {
   const user = await findUser(query);
   if (!user) {
-    return next(HttpError(401, "User not found"));
+    return next(HttpError(401, USER_NOT_FOUND));
   }
   return await user.update(data, {
     returning: true,
@@ -18,7 +20,7 @@ const updateUser = async (query, data) => {
 export const signup = async ({ email, password, subscription }) => {
   const user = await User.findOne({ where: { email } });
   if (user) {
-    throw HttpError(409, `Email ${email} is already in use`);
+    throw HttpError(409, getUserExistMessage(email));
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -39,12 +41,12 @@ export const signup = async ({ email, password, subscription }) => {
 export const signin = async ({ email, password }) => {
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    throw HttpError(401, "Email or password is wrong");
+    throw HttpError(401, INVALID_CREDENTIALS);
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw HttpError(401, "Email or password is wrong");
+    throw HttpError(401, INVALID_CREDENTIALS);
   }
 
   const payload = {

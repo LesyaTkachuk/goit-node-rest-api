@@ -5,9 +5,14 @@ import {
   signup,
   signin,
   signout,
+  updateUserSubscription,
   getCurrent,
 } from "../controllers/authController.js";
-import { signupSchema, signinSchema } from "../schemas/authSchema.js";
+import {
+  signupSchema,
+  signinSchema,
+  updateSubscriptionSchema,
+} from "../schemas/authSchema.js";
 import authenticate from "../middlewares/authenticate.js";
 
 const authRouter = express.Router();
@@ -24,6 +29,13 @@ authRouter.post(
 );
 
 authRouter.get("/current", authenticate, controllerWrapper(getCurrent));
+
+authRouter.patch(
+  "/subscription",
+  authenticate,
+  validateBody(updateSubscriptionSchema),
+  controllerWrapper(updateUserSubscription)
+);
 
 authRouter.post("/logout", authenticate, controllerWrapper(signout));
 
