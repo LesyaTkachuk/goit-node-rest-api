@@ -1,9 +1,19 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User from "../db/models/User.js";
 import HttpError from "../helpers/HttpError.js";
+import { createToken } from "../helpers/jwt.js";
 
-const { JWT_SECRET } = process.env;
+export const findUser = async (query) => await User.findOne({ where: query });
+
+const updateUser = async (query, data) => {
+  const user = await findUser(query);
+  if (!user) {
+    return next(HttpError(401, "User not found"));
+  }
+  return await user.update(data, {
+    returning: true,
+  });
+};
 
 export const signup = async ({ email, password, subscription }) => {
   const user = await User.findOne({ where: { email } });
@@ -42,9 +52,9 @@ export const signin = async ({ email, password }) => {
     email: user.email,
   };
 
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
+  const token = createToken(payload);
 
-  await User.update({ token }, { where: { id: user.id } });
+  await user.update({ token }, { returning: true });
   return {
     token,
     user: {
@@ -54,3 +64,5 @@ export const signin = async ({ email, password }) => {
     },
   };
 };
+
+export const logout = async (query) => await updateUser(query, { token: null });

@@ -1,5 +1,5 @@
 import { DataTypes, Sequelize } from "sequelize";
-import sequelize from "../db/Sequelize.js";
+import sequelize from "../Sequelize.js";
 
 const Contact = sequelize.define("contact", {
   id: {
@@ -26,7 +26,7 @@ const Contact = sequelize.define("contact", {
   owner: {
     type: DataTypes.UUID,
     allowNull: false,
-  }
+  },
 });
 
 Contact.sync();

@@ -1,6 +1,6 @@
 import { DataTypes, Sequelize } from "sequelize";
-import sequelize from "../db/Sequelize.js";
-import { EMAIL_REGEX } from "../constants/auth.js";
+import sequelize from "../Sequelize.js";
+import { EMAIL_REGEX } from "../../constants/auth.js";
 
 const User = sequelize.define("user", {
   id: {
