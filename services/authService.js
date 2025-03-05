@@ -3,7 +3,10 @@ import User from "../db/models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import { createToken } from "../helpers/jwt.js";
 import { INVALID_CREDENTIALS } from "../constants/errorMessages.js";
-import { getUserExistMessage ,USER_NOT_FOUND} from "../constants/errorMessages.js";
+import {
+  getUserExistMessage,
+  USER_NOT_FOUND,
+} from "../constants/errorMessages.js";
 
 export const findUser = async (query) => await User.findOne({ where: query });
 
@@ -17,7 +20,7 @@ export const updateUser = async (query, data) => {
   });
 };
 
-export const signup = async ({ email, password, subscription }) => {
+export const signup = async ({ email, password, subscription, avatarUrl }) => {
   const user = await User.findOne({ where: { email } });
   if (user) {
     throw HttpError(409, getUserExistMessage(email));
@@ -29,12 +32,14 @@ export const signup = async ({ email, password, subscription }) => {
     email,
     password: hashedPassword,
     subscription,
+    avatarUrl,
   });
 
   return {
     id: newUser.id,
     email: newUser.email,
     subscription: newUser.subscription,
+    avatarUrl: newUser.avatarUrl,
   };
 };
 

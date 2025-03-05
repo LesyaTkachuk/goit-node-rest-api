@@ -1,8 +1,15 @@
+import gravatar from "gravatar";
+import path from "path";
+import fs from "fs/promises";
 import * as authService from "../services/authService.js";
 import { LOGOUT_SUCCESS } from "../constants/successMessages.js";
 
 export const signup = async (req, res) => {
-  const user = await authService.signup(req.body);
+  const avatarUrl = gravatar.url(req.body.email, {
+    protocol: "https",
+    s: "100",
+  });
+  const user = await authService.signup({ ...req.body, avatarUrl });
 
   res.status(201).json({
     user,
@@ -26,6 +33,23 @@ export const getCurrent = async (req, res) => {
 export const updateUserSubscription = async (req, res) => {
   const user = await authService.updateUser({ id: req.user.id }, req.body);
   res.status(200).json(user);
+};
+
+export const updateUserAvatar = async (req, res) => {
+  let avatarUrl = null;
+  if (req.file) {
+    const { path: oldPath, filename } = req.file;
+    const avatarsDir = path.join(process.cwd(), "public", "avatars");
+    const newPath = path.join(avatarsDir, filename);
+    await fs.rename(oldPath, newPath);
+    avatarUrl = path.join("avatars", filename);
+  }
+
+  const user = await authService.updateUser({ id: req.user.id }, { avatarUrl });
+
+  res
+    .status(200)
+    .json({ id: user.id, email: user.email, avatarUrl: user.avatarUrl });
 };
 
 export const signout = async (req, res) => {
