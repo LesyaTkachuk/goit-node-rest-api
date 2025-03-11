@@ -2,7 +2,11 @@ import gravatar from "gravatar";
 import path from "path";
 import fs from "fs/promises";
 import * as authService from "../services/authService.js";
-import { LOGOUT_SUCCESS } from "../constants/successMessages.js";
+import {
+  LOGOUT_SUCCESS,
+  VERIFY_SUCCESS,
+  EMAIL_SENT,
+} from "../constants/successMessages.js";
 import { FILE_UPLOAD_ERROR } from "../constants/errorMessages.js";
 import HttpError from "../helpers/HttpError.js";
 
@@ -16,6 +20,22 @@ export const signup = async (req, res) => {
   res.status(201).json({
     user,
   });
+};
+
+export const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  await authService.verifyUser(verificationToken);
+
+  res.status(200).json({ message: VERIFY_SUCCESS });
+};
+
+export const resendVerify = async (req, res) => {
+  const { email } = req.body;
+
+  await authService.resendVerifyEmail(email);
+
+  res.status(200).json({ message: EMAIL_SENT });
 };
 
 export const signin = async (req, res) => {
@@ -64,5 +84,5 @@ export const signout = async (req, res) => {
 
   await authService.logout({ id });
 
-  res.json({ message: LOGOUT_SUCCESS });
+  res.status(200).json({ message: LOGOUT_SUCCESS });
 };

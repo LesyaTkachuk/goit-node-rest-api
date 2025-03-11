@@ -3,6 +3,8 @@ import controllerWrapper from "../helpers/controllerWrapper.js";
 import validateBody from "../helpers/validateBody.js";
 import {
   signup,
+  verify,
+  resendVerify,
   signin,
   signout,
   updateUserSubscription,
@@ -11,6 +13,7 @@ import {
 } from "../controllers/authController.js";
 import {
   signupSchema,
+  verifySchema,
   signinSchema,
   updateSubscriptionSchema,
 } from "../schemas/authSchema.js";
@@ -24,6 +27,11 @@ authRouter.post(
   validateBody(signupSchema),
   controllerWrapper(signup)
 );
+
+authRouter.get("/verify/:verificationToken", controllerWrapper(verify));
+
+authRouter.post("/verify",validateBody(verifySchema), controllerWrapper(resendVerify));
+
 authRouter.post(
   "/login",
   validateBody(signinSchema),
