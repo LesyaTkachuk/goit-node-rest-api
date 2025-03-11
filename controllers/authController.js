@@ -3,6 +3,8 @@ import path from "path";
 import fs from "fs/promises";
 import * as authService from "../services/authService.js";
 import { LOGOUT_SUCCESS } from "../constants/successMessages.js";
+import { FILE_UPLOAD_ERROR } from "../constants/errorMessages.js";
+import HttpError from "../helpers/HttpError.js";
 
 export const signup = async (req, res) => {
   const avatarUrl = gravatar.url(req.body.email, {
@@ -38,11 +40,16 @@ export const updateUserSubscription = async (req, res) => {
 export const updateUserAvatar = async (req, res) => {
   let avatarUrl = null;
   if (req.file) {
-    const { path: oldPath, filename } = req.file;
-    const avatarsDir = path.join(process.cwd(), "public", "avatars");
-    const newPath = path.join(avatarsDir, filename);
-    await fs.rename(oldPath, newPath);
-    avatarUrl = path.join("avatars", filename);
+    try {
+      const { path: oldPath, filename } = req.file;
+      const avatarsDir = path.join(process.cwd(), "public", "avatars");
+      const newPath = path.join(avatarsDir, filename);
+      await fs.rename(oldPath, newPath);
+      avatarUrl = path.join("avatars", filename);
+    } catch (error) {
+      await fs.unlink(req.file.path);
+      throw HttpError(400, FILE_UPLOAD_ERROR);
+    }
   }
 
   const user = await authService.updateUser({ id: req.user.id }, { avatarUrl });
