@@ -13,7 +13,7 @@ import {
   USER_VERIFIED,
 } from "../constants/errorMessages.js";
 
-const { BASE_URL } = process.env;
+const { APP_BASE_URL, APP_PORT } = process.env;
 
 export const findUser = async (query) => await User.findOne({ where: query });
 
@@ -31,7 +31,7 @@ const createVerifyEmail = (email, verificationToken) => {
   const verifyEmail = {
     to: email,
     subject: "Verify email",
-    html: `<p>In order to verify your email, please click the link below.</p><a href="${BASE_URL}api/auth/verify/${verificationToken}" target="_blank" rel="noopener noreferrer">Verify email</a>`,
+    html: `<p>In order to verify your email, please click the link below.</p><a href="${APP_BASE_URL}:${APP_PORT}/api/auth/verify/${verificationToken}" target="_blank" rel="noopener noreferrer">Verify email</a>`,
   };
 
   return verifyEmail;
