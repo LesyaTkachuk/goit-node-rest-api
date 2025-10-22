@@ -6,6 +6,8 @@ import "dotenv/config";
 import authRouter from "./routes/authRouter.js";
 import contactsRouter from "./routes/contactsRouter.js";
 
+const { APP_PORT } = process.env;
+
 const app = express();
 
 app.use(morgan("tiny"));
@@ -20,11 +22,11 @@ app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-app.use((err, req, res, next) => {
+app.use((err, _, res, __) => {
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({ message });
 });
 
-app.listen(3003, () => {
-  console.log("Server is running. Use our API on port: 3003");
+app.listen(APP_PORT, () => {
+  console.log(`Server is running. Use our API on port ${APP_PORT}`);
 });
